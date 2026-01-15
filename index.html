@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Guerre de Guilde</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #d4af37;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .role-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 3px solid #d4af37;
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .role-btn.active {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .role-btn.dps.active {
+            background: linear-gradient(145deg, #2563eb, #1e40af);
+            border-color: #60a5fa;
+        }
+
+        .role-btn.heal.active {
+            background: linear-gradient(145deg, #16a34a, #15803d);
+            border-color: #4ade80;
+        }
+
+        .role-btn.tank.active {
+            background: linear-gradient(145deg, #92400e, #78350f);
+            border-color: #d97706;
+        }
+
+        .tasks-container {
+            display: none;
+        }
+
+        .tasks-container.active {
+            display: block;
+        }
+
+        .task-item {
+            background: linear-gradient(145deg, #333333, #2a2a2a);
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-item.completed {
+            opacity: 0.5;
+            order: 999;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .task-header:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #d4af37;
+        }
+
+        .task-title {
+            flex: 1;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #d4af37;
+        }
+
+        .task-item.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .task-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .task-item.expanded .task-content {
+            max-height: 2000px;
+        }
+
+        .task-description {
+            padding: 20px;
+        }
+
+        .task-description p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .images-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .image-wrapper {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #d4af37;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .image-caption {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #b0b0b0;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            background: rgba(0, 0, 0, 0.3);
+            height: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 2px solid #d4af37;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f4d03f);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .role-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .images-container {
+                flex-direction: column;
+            }
+
+            .image-wrapper {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ Préparation Guerre de Guilde ⚔️</h1>
+
+        <div class="role-buttons">
+            <button class="role-btn dps" onclick="selectRole('dps')">DPS</button>
+            <button class="role-btn heal" onclick="selectRole('heal')">Healer</button>
+            <button class="role-btn tank" onclick="selectRole('tank')">Tank</button>
+        </div>
+
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+
+        <!-- DPS Tasks -->
+        <div id="dps-tasks" class="tasks-container">
+            <!-- Tasks will be generated by JavaScript -->
+        </div>
+
+        <!-- Healer Tasks -->
+        <div id="heal-tasks" class="tasks-container">
+            <!-- Tasks will be generated by JavaScript -->
+        </div>
+
+        <!-- Tank Tasks -->
+        <div id="tank-tasks" class="tasks-container">
+            <!-- Tasks will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const tasksData = {
+            dps: [
+                {
+                    title: "Consommable : Double Lamelles",
+                    images: [
+                        { src: "images/double_lamelles.jpg", caption: "" }
+                    ]
+                },
+                {
+                    title: "Divinecraft",
+                    images: [
+                        { src: "images/divinecraft_eau.jpg", caption: "Pour les dps AOE tous les divinecrafts sont bons mais celui de l'eau réduit les dégâts infligés par les ennemis" },
+                        { src: "images/divinecraft_feu.jpg", caption: "Le divinecraft de feu permet de créer des explosion en cas de coup répétitif" },
+                        { src: "images/divinecraft_poison.jpg", caption: "Le divinecraft de poison cassera plus vite le QI. A prioriser pour du monocible." }
+                    ]
+                },
+                {
+                    title: "Parchemins",
+                    images: [
+                        { src: "images/parchemin_restauration.jpg", caption: "Pour les Épée sans nom et classe demandant de l'endurance le parchemin de restauration sera demandé" },
+                        { src: "images/parchemin_rapidite.jpg", caption: "pour les groupes qui devront beaucoup bouger ( flank et assassin )" }
+                    ]
+                },
+                {
+                    title: "Potions",
+                    description: "Les potions sont actives en GvG",
+                    images: []
+                },
+                {
+                    title: "Compétences Mythiques",
+                    images: [
+                        { src: "images/rugissement_du_lion.jpg", caption: "" },
+                        { src: "images/corps_dore.jpg", caption: "" },
+                        { src: "images/saut_du_crapaud.jpg", caption: "" },
+                        { src: "images/tournoiement_aerien.jpg", caption: "" },
+                        { src: "images/meteore_enflamme.jpg", caption: "" },
+                        { src: "images/paume_gardienne.jpg", caption: "" },
+                        { src: "images/pas_des_nuages.jpg", caption: "" }
+                    ]
+                }
+            ],
+            tank: [
+                {
+                    title: "Consommable : Soupe de Fugu",
+                    images: [
+                        { src: "images/soupe_de_fugu.jpg", caption: "" }
+                    ]
+                },
+                {
+                    title: "Divinecraft",
+                    images: [
+                        { src: "images/divinecraft_eau.jpg", caption: "" }
+                    ]
+                },
+                {
+                    title: "Parchemins",
+                    images: [
+                        { src: "images/parchemin_rapidite.jpg", caption: "pour les groupes qui devront beaucoup bouger ( flank et assassin )" },
+                        { src: "images/parchemin_resilience.jpg", caption: "pour les groupes tank et heal" }
+                    ]
+                },
+                {
+                    title: "Potions",
+                    description: "Les potions sont actives en GvG",
+                    images: []
+                },
+                {
+                    title: "Compétences Mythiques",
+                    images: [
+                        { src: "images/rugissement_du_lion.jpg", caption: "" },
+                        { src: "images/corps_dore.jpg", caption: "" },
+                        { src: "images/saut_du_crapaud.jpg", caption: "" },
+                        { src: "images/tournoiement_aerien.jpg", caption: "" },
+                        { src: "images/meteore_enflamme.jpg", caption: "" },
+                        { src: "images/paume_gardienne.jpg", caption: "" },
+                        { src: "images/pas_des_nuages.jpg", caption: "" }
+                    ]
+                }
+            ],
+            heal: [
+                {
+                    title: "Parchemins",
+                    images: [
+                        { src: "images/parchemin_resilience.jpg", caption: "pour les groupes tank et heal" }
+                    ]
+                },
+                {
+                    title: "Potions",
+                    description: "Les potions sont actives en GvG",
+                    images: []
+                },
+                {
+                    title: "Compétences Mythiques",
+                    images: [
+                        { src: "images/rugissement_du_lion.jpg", caption: "" },
+                        { src: "images/corps_dore.jpg", caption: "" },
+                        { src: "images/saut_du_crapaud.jpg", caption: "" },
+                        { src: "images/tournoiement_aerien.jpg", caption: "" },
+                        { src: "images/meteore_enflamme.jpg", caption: "" },
+                        { src: "images/paume_gardienne.jpg", caption: "" },
+                        { src: "images/pas_des_nuages.jpg", caption: "" }
+                    ]
+                }
+            ]
+        };
+
+        let currentRole = null;
+        let completedTasks = {};
+
+        function loadProgress() {
+            const saved = localStorage.getItem('guildWarProgress');
+            if (saved) {
+                completedTasks = JSON.parse(saved);
+            }
+        }
+
+        function saveProgress() {
+            localStorage.setItem('guildWarProgress', JSON.stringify(completedTasks));
+        }
+
+        function selectRole(role) {
+            currentRole = role;
+            
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.role-btn.${role}`).classList.add('active');
+
+            document.querySelectorAll('.tasks-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`${role}-tasks`).classList.add('active');
+
+            document.getElementById('progressBar').style.display = 'block';
+            updateProgress();
+        }
+
+        function createTaskElement(task, index, role) {
+            const taskId = `${role}-${index}`;
+            const isCompleted = completedTasks[taskId] || false;
+
+            const taskDiv = document.createElement('div');
+            taskDiv.className = `task-item ${isCompleted ? 'completed' : ''}`;
+            taskDiv.id = taskId;
+
+            let imagesHTML = '';
+            if (task.images && task.images.length > 0) {
+                imagesHTML = '<div class="images-container">';
+                task.images.forEach(img => {
+                    imagesHTML += `
+                        <div class="image-wrapper">
+                            <img src="${img.src}" alt="${task.title}" onerror="this.style.display='none'">
+                            ${img.caption ? `<div class="image-caption">${img.caption}</div>` : ''}
+                        </div>
+                    `;
+                });
+                imagesHTML += '</div>';
+            }
+
+            const descriptionHTML = task.description ? `<p>${task.description}</p>` : '';
+
+            taskDiv.innerHTML = `
+                <div class="task-header" onclick="toggleTask('${taskId}')">
+                    <input type="checkbox" class="task-checkbox" ${isCompleted ? 'checked' : ''} 
+                           onclick="event.stopPropagation(); toggleComplete('${taskId}')" />
+                    <div class="task-title">${task.title}</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="task-content">
+                    <div class="task-description">
+                        ${descriptionHTML}
+                        ${imagesHTML}
+                    </div>
+                </div>
+            `;
+
+            return taskDiv;
+        }
+
+        function renderTasks() {
+            ['dps', 'tank', 'heal'].forEach(role => {
+                const container = document.getElementById(`${role}-tasks`);
+                container.innerHTML = '';
+                tasksData[role].forEach((task, index) => {
+                    container.appendChild(createTaskElement(task, index, role));
+                });
+            });
+        }
+
+        function toggleTask(taskId) {
+            const taskElement = document.getElementById(taskId);
+            taskElement.classList.toggle('expanded');
+        }
+
+        function toggleComplete(taskId) {
+            completedTasks[taskId] = !completedTasks[taskId];
+            const taskElement = document.getElementById(taskId);
+            
+            if (completedTasks[taskId]) {
+                taskElement.classList.add('completed');
+            } else {
+                taskElement.classList.remove('completed');
+            }
+
+            saveProgress();
+            updateProgress();
+        }
+
+        function updateProgress() {
+            if (!currentRole) return;
+
+            const totalTasks = tasksData[currentRole].length;
+            let completed = 0;
+
+            tasksData[currentRole].forEach((task, index) => {
+                const taskId = `${currentRole}-${index}`;
+                if (completedTasks[taskId]) {
+                    completed++;
+                }
+            });
+
+            const percentage = Math.round((completed / totalTasks) * 100);
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = percentage + '%';
+        }
+
+        // Initialize
+        loadProgress();
+        renderTasks();
+    </script>
+</body>
+</html>
